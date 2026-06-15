@@ -13,7 +13,7 @@ app.use(cookieParser())
 app.use(cors({
 
     origin: ["http://localhost:5173",
-        "https://inter-ecom-front-d2y7.vercel.app/"
+        "https://inter-ecom-front-d2y7.vercel.app"
     ],
     credentials: true
 }));
