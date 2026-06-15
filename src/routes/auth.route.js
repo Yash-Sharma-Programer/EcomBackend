@@ -11,16 +11,16 @@ const authRouter = Router()
 const upload = multer({ storage: multer.memoryStorage() })
 
 // Auth
-authRouter.post('https://ecom-backend-ovxs.vercel.app/signin', authController.register)
-authRouter.post('https://ecom-backend-ovxs.vercel.app/login', authController.loginHandler)
-authRouter.post('https://ecom-backend-ovxs.vercel.app/adminlogin', authController.adminloginHandler)
-authRouter.post('https://ecom-backend-ovxs.vercel.app/logout', authController.logout)
+authRouter.post('/signin', authController.register)
+authRouter.post('/login', authController.loginHandler)
+authRouter.post('/adminlogin', authController.adminloginHandler)
+authRouter.post('/logout', authController.logout)
 
 // Profile (protected)
-authRouter.get('https://ecom-backend-ovxs.vercel.app/profile', verifyToken, authController.getProfile)
+authRouter.get('/profile', verifyToken, authController.getProfile)
 
 // Products - public GET with search support
-authRouter.get('https://ecom-backend-ovxs.vercel.app/products', async (req, res) => {
+authRouter.get('/products', async (req, res) => {
     try {
         const { search } = req.query
         let query = {}
@@ -40,7 +40,7 @@ authRouter.get('https://ecom-backend-ovxs.vercel.app/products', async (req, res)
     }
 })
 
-authRouter.post('https://ecom-backend-ovxs.vercel.app/addproduct', upload.single("productImage"), async (req, res) => {
+authRouter.post('/addproduct', upload.single("productImage"), async (req, res) => {
     try {
         if (!req.file) {
             return res.status(400).json({ success: false, message: "No file received" });
@@ -61,7 +61,7 @@ authRouter.post('https://ecom-backend-ovxs.vercel.app/addproduct', upload.single
 });
 
 // Delete product (admin only)
-authRouter.delete('https://ecom-backend-ovxs.vercel.app/products/:id', async (req, res) => {
+authRouter.delete('/products/:id', async (req, res) => {
     try {
         const { adminUsername, adminPassword } = req.headers
         if (adminUsername !== config.ADMIN_USERNAME || adminPassword !== config.ADMIN_PASSWORD) {
@@ -75,7 +75,7 @@ authRouter.delete('https://ecom-backend-ovxs.vercel.app/products/:id', async (re
 })
 
 // Analytics endpoint (admin only)
-authRouter.get('https://ecom-backend-ovxs.vercel.app/admin/analytics', async (req, res) => {
+authRouter.get('/admin/analytics', async (req, res) => {
     try {
         const { adminusername, adminpassword } = req.headers
         if (adminusername !== config.ADMIN_USERNAME || adminpassword !== config.ADMIN_PASSWORD) {
