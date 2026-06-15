@@ -5,7 +5,7 @@ import config from "../config/config.js";
 const orderRouter = Router()
 
 // POST /orders — place a Buy Now order
-orderRouter.post('/', async (req, res) => {
+orderRouter.post('https://ecom-backend-six-sigma.vercel.app/', async (req, res) => {
     try {
         const {
             product, productName, productPrice, productImage,
@@ -29,7 +29,7 @@ orderRouter.post('/', async (req, res) => {
 })
 
 // GET /orders — admin: view all orders
-orderRouter.get('/', async (req, res) => {
+orderRouter.get('https://ecom-backend-six-sigma.vercel.app/', async (req, res) => {
     try {
         const { adminusername, adminpassword } = req.headers
         if (adminusername !== config.ADMIN_USERNAME || adminpassword !== config.ADMIN_PASSWORD) {
@@ -43,7 +43,7 @@ orderRouter.get('/', async (req, res) => {
 })
 
 // GET /orders/user/:userId — orders for a specific user
-orderRouter.get('/user/:userId', async (req, res) => {
+orderRouter.get('https://ecom-backend-six-sigma.vercel.app/user/:userId', async (req, res) => {
     try {
         const orders = await orderModel.find({ userId: req.params.userId }).sort({ createdAt: -1 })
         res.status(200).json({ success: true, orders })
