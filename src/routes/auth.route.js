@@ -20,6 +20,11 @@ authRouter.post('/logout', authController.logout)
 authRouter.get('/profile', verifyToken, authController.getProfile)
 
 // Products - public GET with search support
+authRouter.get('/', (req, res) => {
+    res.status(200).json({
+        message: "Backend Succesfully Run"
+    })
+})
 authRouter.get('/products', async (req, res) => {
     try {
         const { search } = req.query
