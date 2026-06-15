@@ -43,7 +43,7 @@ orderRouter.get('https://ecom-backend-six-sigma.vercel.app/', async (req, res) =
 })
 
 // GET /orders/user/:userId — orders for a specific user
-orderRouter.get('https://ecom-backend-ovxs.vercel.app/user/:userId', async (req, res) => {
+orderRouter.get('/user/:userId', async (req, res) => {
     try {
         const orders = await orderModel.find({ userId: req.params.userId }).sort({ createdAt: -1 })
         res.status(200).json({ success: true, orders })

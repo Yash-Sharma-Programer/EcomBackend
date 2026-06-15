@@ -19,8 +19,8 @@ app.use(cors({
     credentials: true
 }));
 
-app.use('https://ecom-backend-ovxs.vercel.app/', authRouter)
-app.use('https://ecom-backend-ovxs.vercel.app/cart', cartRouter)
-app.use('https://ecom-backend-ovxs.vercel.app/orders', orderRouter)
+app.use('/', authRouter)
+app.use('/cart', cartRouter)
+app.use('/orders', orderRouter)
 
 export default app
