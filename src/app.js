@@ -12,10 +12,7 @@ app.use(express.urlencoded({ extended: true }))
 app.use(cookieParser())
 app.use(cors({
 
-    origin: [
-        "http://localhost:5173",
-        "https://inter-ecom-front-d2y7.vercel.app"
-    ],
+    origin: 'https://ecom-backend-ovxs.vercel.app', 
     credentials: true
 }));
 
