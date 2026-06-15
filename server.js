@@ -1,6 +1,10 @@
 import app from './src/app.js'
 import ConnectDB from './src/config/database.js'
 
+const PORT = process.env.PORT
 ConnectDB()
-PORT = process.env.PORT
+
+app.listen(PORT, () => {
+    console.log("App listenning on Port: ", PORT)
+})
 

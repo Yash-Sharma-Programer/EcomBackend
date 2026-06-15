@@ -12,14 +12,15 @@ app.use(express.urlencoded({ extended: true }))
 app.use(cookieParser())
 app.use(cors({
 
-    origin: ["http://localhost:5173",
+    origin: [
+        "http://localhost:5173",
         "https://inter-ecom-front-d2y7.vercel.app"
     ],
     credentials: true
 }));
 
-app.use('/', authRouter)
-app.use('/cart', cartRouter)
-app.use('/orders', orderRouter)
+app.use('https://ecom-backend-ovxs.vercel.app/', authRouter)
+app.use('https://ecom-backend-ovxs.vercel.app/cart', cartRouter)
+app.use('https://ecom-backend-ovxs.vercel.app/orders', orderRouter)
 
 export default app
