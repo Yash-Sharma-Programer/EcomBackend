@@ -52,4 +52,26 @@ orderRouter.get('/user/:userId', async (req, res) => {
     }
 })
 
+// PATCH /orders/:id/status — admin: update order status
+orderRouter.patch('/:id/status', async (req, res) => {
+    try {
+        const { adminusername, adminpassword } = req.headers
+        if (adminusername !== config.ADMIN_USERNAME || adminpassword !== config.ADMIN_PASSWORD) {
+            return res.status(401).json({ success: false, message: "Unauthorized" })
+        }
+        const { status } = req.body
+        const allowed = ['pending', 'confirmed', 'shipped', 'delivered', 'cancelled']
+        if (!allowed.includes(status)) {
+            return res.status(400).json({ success: false, message: "Invalid status" })
+        }
+        const order = await orderModel.findByIdAndUpdate(req.params.id, { status }, { new: true })
+        if (!order) {
+            return res.status(404).json({ success: false, message: "Order not found" })
+        }
+        res.status(200).json({ success: true, message: "Order status updated", order })
+    } catch (err) {
+        res.status(500).json({ success: false, message: err.message })
+    }
+})
+
 export default orderRouter
