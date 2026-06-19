@@ -19,7 +19,7 @@ reviewRouter.get('/reviews/:productId', async (req, res) => {
 // POST /reviews/:productId — add a review (auth required)
 reviewRouter.post('/reviews/:productId',  async (req, res) => {
     try {
-        const user = await userModel.findById(req.userId).select('-password')
+        const user = await userModel.findById(req.userId).select('password')
         if (!user) return res.status(404).json({ success: false, message: "User not found" })
         if (user.isBlocked) return res.status(403).json({ success: false, message: "Your account is blocked" })
 
