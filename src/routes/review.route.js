@@ -7,7 +7,7 @@ import config from "../config/config.js";
 const reviewRouter = Router()
 
 // GET /reviews/:productId — get all reviews for a product
-reviewRouter.get('/:productId', async (req, res) => {
+reviewRouter.get('/reviews/:productId', async (req, res) => {
     try {
         const reviews = await reviewModel.find({ product: req.params.productId }).sort({ createdAt: -1 })
         res.status(200).json({ success: true, reviews })
@@ -17,7 +17,7 @@ reviewRouter.get('/:productId', async (req, res) => {
 })
 
 // POST /reviews/:productId — add a review (auth required)
-reviewRouter.post('/:productId', verifyToken, async (req, res) => {
+reviewRouter.post('/reviews/:productId', verifyToken, async (req, res) => {
     try {
         const user = await userModel.findById(req.userId).select('-password')
         if (!user) return res.status(404).json({ success: false, message: "User not found" })

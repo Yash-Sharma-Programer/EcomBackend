@@ -21,4 +21,10 @@ app.use('/cart', cartRouter)
 app.use('/orders', orderRouter)
 app.use('/reviews', reviewRouter)
 
+app.get('/', (req, res) => {
+     res.status(200).json({
+        message: "Backend Runs Succesfully"
+     })
+})
+
 export default app
