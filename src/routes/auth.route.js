@@ -72,7 +72,7 @@ authRouter.delete('/products/:id', async (req, res) => {
 authRouter.get('/admin/users', async (req, res) => {
     try {
         if (!isAdmin(req)) return res.status(401).json({ success: false, message: "Unauthorized" })
-        const users = await userModel.find().select('password').sort({ createdAt: -1 })
+        const users = await userModel.find().select('-password').sort({ createdAt: -1 })
         res.status(200).json({ success: true, users })
     } catch (err) {
         res.status(500).json({ success: false, message: err.message })
