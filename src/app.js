@@ -19,7 +19,7 @@ app.use(cors({
 app.use('/', authRouter)
 app.use('/cart', cartRouter)
 app.use('/orders', orderRouter)
-app.use('/reviews', reviewRouter)
+app.use('/', reviewRouter)
 
 app.get('/', (req, res) => {
      res.status(200).json({
