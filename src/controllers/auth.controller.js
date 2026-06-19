@@ -42,7 +42,7 @@ export async function loginHandler(req, res) {
 
     res.status(200).json({
         success: true,
-        message: 'Login Successful',
+        message: 'Login Successful a user!',
         user: { id: user._id, name: user.name, email: user.email }
     })
 }
