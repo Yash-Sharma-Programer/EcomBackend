@@ -44,7 +44,7 @@ reviewRouter.post('/reviews/:productId', verifyToken, async (req, res) => {
 })
 
 // DELETE /reviews/:reviewId — delete own review (auth required)
-reviewRouter.delete('/:reviewId', verifyToken, async (req, res) => {
+reviewRouter.delete(' /reviews/:reviewId', verifyToken, async (req, res) => {
     try {
         const review = await reviewModel.findById(req.params.reviewId)
         if (!review) return res.status(404).json({ success: false, message: "Review not found" })
