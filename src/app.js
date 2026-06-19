@@ -12,7 +12,7 @@ app.use(express.json())
 app.use(express.urlencoded({ extended: true }))
 app.use(cookieParser())
 app.use(cors({
-    origin: "https://inter-ecom-front-d2y7.vercel.app",
+    origin: "https://inter-ecom-front-d2y7-iihdndltg-ecomexpressproject.vercel.app",
     credentials: true
 }));
 
