@@ -7,12 +7,26 @@ const imagekit = new ImageKit({
     urlEndpoint: config.IMAGEKIT_URL_ENDPOINT,
 })
 
-async function uploadFile(buffer) {
+async function uploadFile(buffer, prefix = "file") {
     const result = await imagekit.upload({
         file: buffer.toString("base64"),
-        fileName: `product_${Date.now()}.jpg`,
+        fileName: `${prefix}_${Date.now()}_${Math.round(Math.random() * 1e6)}.jpg`,
     })
     return result;
 }
 
-export default uploadFile
+async function uploadMultiple(files = [], prefix = "file") {
+    return Promise.all(files.map(f => uploadFile(f.buffer, prefix)))
+}
+
+async function deleteFile(fileId) {
+    if (!fileId) return
+    try {
+        await imagekit.deleteFile(fileId)
+    } catch {
+        // best-effort cleanup; ignore failures
+    }
+}
+
+export default uploadFile;
+export { uploadMultiple, deleteFile };

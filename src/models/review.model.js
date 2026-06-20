@@ -6,7 +6,7 @@ const reviewSchema = new mongoose.Schema({
         ref: 'Product',
         required: true
     },
-    userId: {
+    user: {
         type: mongoose.Schema.Types.ObjectId,
         ref: 'User',
         required: true
@@ -21,12 +21,19 @@ const reviewSchema = new mongoose.Schema({
         min: 1,
         max: 5
     },
-    comment: {
+    text: {
         type: String,
         required: true,
         trim: true
+    },
+    status: {
+        type: String,
+        enum: ['pending', 'approved', 'rejected'],
+        default: 'pending'
     }
-}, { timestamps: true })
+}, { timestamps: true });
 
-const reviewModel = mongoose.model("Review", reviewSchema)
-export default reviewModel
+reviewSchema.index({ product: 1, user: 1 }, { unique: true });
+
+const reviewModel = mongoose.model("Review", reviewSchema);
+export default reviewModel;

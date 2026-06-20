@@ -1,55 +1,23 @@
 import { Router } from "express";
-import orderModel from "../models/order.model.js";
-import config from "../config/config.js";
+import * as orderController from "../controllers/order.controller.js";
+import { verifyToken, requireAdmin, optionalAuth } from "../middleware/auth.middleware.js";
 
 const orderRouter = Router()
 
-// POST /orders — place a Buy Now order
-orderRouter.post('/', async (req, res) => {
-    try {
-        const {
-            product, productName, productPrice, productImage,
-            quantity, totalAmount, address, userId
-        } = req.body
+// Place order (works for logged-in users; guest checkout also tolerated since userId is optional)
+orderRouter.post('/', optionalAuth, orderController.placeOrder)
 
-        if (!product || !productName || !productPrice || !quantity || !totalAmount || !address) {
-            return res.status(400).json({ success: false, message: "Missing required fields" })
-        }
+// Admin: view all orders (filterable)
+orderRouter.get('/', verifyToken, requireAdmin, orderController.getAllOrders)
 
-        const order = await orderModel.create({
-            product, productName, productPrice, productImage,
-            quantity, totalAmount, address,
-            userId: userId || null
-        })
+// User: their own orders
+orderRouter.get('/user/:userId', verifyToken, orderController.getUserOrders)
 
-        res.status(201).json({ success: true, message: "Order placed successfully", order })
-    } catch (err) {
-        res.status(500).json({ success: false, message: err.message })
-    }
-})
+// Single order detail (used by both admin order detail page and user order detail page)
+orderRouter.get('/:id', verifyToken, orderController.getOrderById)
 
-// GET /orders — admin: view all orders
-orderRouter.get('/', async (req, res) => {
-    try {
-        const { adminusername, adminpassword } = req.headers
-        if (adminusername !== config.ADMIN_USERNAME || adminpassword !== config.ADMIN_PASSWORD) {
-            return res.status(401).json({ success: false, message: "Unauthorized" })
-        }
-        const orders = await orderModel.find().sort({ createdAt: -1 })
-        res.status(200).json({ success: true, orders })
-    } catch (err) {
-        res.status(500).json({ success: false, message: err.message })
-    }
-})
-
-// GET /orders/user/:userId — orders for a specific user
-orderRouter.get('/user/:userId', async (req, res) => {
-    try {
-        const orders = await orderModel.find({ userId: req.params.userId }).sort({ createdAt: -1 })
-        res.status(200).json({ success: true, orders })
-    } catch (err) {
-        res.status(500).json({ success: false, message: err.message })
-    }
-})
+// Admin: update order status / payment status
+orderRouter.patch('/:id/status', verifyToken, requireAdmin, orderController.updateOrderStatus)
+orderRouter.patch('/:id/payment', verifyToken, requireAdmin, orderController.updatePaymentStatus)
 
 export default orderRouter
