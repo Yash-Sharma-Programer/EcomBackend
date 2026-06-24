@@ -3,7 +3,7 @@ import jwt from "jsonwebtoken"
 import config from "../config/config.js"
 import bcrypt from "bcrypt"
 import crypto from "crypto"
-import { canSendEmail, sendPasswordResetEmail } from "../services/email.service.js"
+import { canSendEmail, sendPasswordResetEmail, sendPasswordChangeEmail } from "../services/email.service.js"
 
 function signToken(user) {
     return jwt.sign({ id: user._id, role: user.role }, config.JWT_SECRET, { expiresIn: "7d" })
@@ -235,6 +235,11 @@ export async function resetPassword(req, res) {
         user.resetPasswordExpires = undefined;
         await user.save();
 
+        // Send password change confirmation email
+        if (canSendEmail()) {
+            await sendPasswordChangeEmail(user);
+        }
+
         return res.status(200).json({ success: true, message: "Password reset successfully" });
     } catch (err) {
         return res.status(500).json({ success: false, message: err.message });
@@ -262,6 +267,11 @@ export async function changePassword(req, res) {
 
         user.password = await bcrypt.hash(newPassword, 10);
         await user.save();
+
+        // Send password change confirmation email
+        if (canSendEmail()) {
+            await sendPasswordChangeEmail(user);
+        }
 
         return res.status(200).json({ success: true, message: "Password changed successfully" });
     } catch (err) {
