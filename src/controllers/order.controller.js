@@ -1,5 +1,7 @@
 import orderModel from "../models/order.model.js";
 import productModel from "../models/product.model.js";
+import userModel from "../models/user.model.js";
+import { sendOrderPlacedEmail } from "../services/email.service.js";
 
 // POST /orders — place an order with one or more line items
 export async function placeOrder(req, res) {
@@ -39,6 +41,10 @@ export async function placeOrder(req, res) {
         await Promise.all(items.map(item =>
             productModel.findByIdAndUpdate(item.product, { $inc: { stock: -item.quantity } })
         ));
+
+        // Send order confirmation email. Checkout requires login, so user email is usually available.
+        const orderUser = order.userId ? await userModel.findById(order.userId).select("email") : null;
+        await sendOrderPlacedEmail(orderUser?.email, order);
 
         res.status(201).json({ success: true, message: "Order placed successfully", order });
     } catch (err) {

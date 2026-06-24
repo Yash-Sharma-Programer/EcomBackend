@@ -43,7 +43,9 @@ const userSchema = new mongoose.Schema({
     wishlist: [{
         type: mongoose.Schema.Types.ObjectId,
         ref: "Product"
-    }]
+    }],
+    resetPasswordToken: { type: String },
+    resetPasswordExpires: { type: Date }
 }, { timestamps: true })
 
 const userModel = mongoose.model("User", userSchema)

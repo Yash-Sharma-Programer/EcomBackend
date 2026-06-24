@@ -2,6 +2,8 @@ import userModel from "../models/user.model.js";
 import jwt from "jsonwebtoken"
 import config from "../config/config.js"
 import bcrypt from "bcrypt"
+import crypto from "crypto"
+import { sendPasswordResetEmail } from "../services/email.service.js"
 
 function signToken(user) {
     return jwt.sign({ id: user._id, role: user.role }, config.JWT_SECRET, { expiresIn: "7d" })
@@ -162,6 +164,94 @@ export async function updateProfile(req, res) {
         res.status(200).json({ success: true, message: "Profile updated", user: publicUser(user) })
     } catch (err) {
         res.status(500).json({ success: false, message: err.message })
+    }
+}
+
+export async function forgotPassword(req, res) {
+    try {
+        const { email } = req.body;
+        if (!email) {
+            return res.status(400).json({ success: false, message: "Email is required" });
+        }
+
+        const user = await userModel.findOne({ email: email.toLowerCase() });
+
+        // Do not reveal whether an email exists or not.
+        if (!user) {
+            return res.status(200).json({ success: true, message: "If this email exists, a reset link has been sent" });
+        }
+
+        const rawToken = crypto.randomBytes(32).toString("hex");
+        const hashedToken = crypto.createHash("sha256").update(rawToken).digest("hex");
+
+        user.resetPasswordToken = hashedToken;
+        user.resetPasswordExpires = new Date(Date.now() + 15 * 60 * 1000);
+        await user.save();
+
+        const resetUrl = `${config.CLIENT_URL}/reset-password/${rawToken}`;
+        await sendPasswordResetEmail(user, resetUrl);
+
+        return res.status(200).json({ success: true, message: "Password reset link sent to your email" });
+    } catch (err) {
+        return res.status(500).json({ success: false, message: err.message });
+    }
+}
+
+export async function resetPassword(req, res) {
+    try {
+        const { token } = req.params;
+        const { password } = req.body;
+
+        if (!password || password.length < 8) {
+            return res.status(400).json({ success: false, message: "Password must be at least 8 characters" });
+        }
+
+        const hashedToken = crypto.createHash("sha256").update(token).digest("hex");
+        const user = await userModel.findOne({
+            resetPasswordToken: hashedToken,
+            resetPasswordExpires: { $gt: new Date() }
+        });
+
+        if (!user) {
+            return res.status(400).json({ success: false, message: "Reset link is invalid or expired" });
+        }
+
+        user.password = await bcrypt.hash(password, 10);
+        user.resetPasswordToken = undefined;
+        user.resetPasswordExpires = undefined;
+        await user.save();
+
+        return res.status(200).json({ success: true, message: "Password reset successfully" });
+    } catch (err) {
+        return res.status(500).json({ success: false, message: err.message });
+    }
+}
+
+export async function changePassword(req, res) {
+    try {
+        const { currentPassword, newPassword } = req.body;
+
+        if (!currentPassword || !newPassword) {
+            return res.status(400).json({ success: false, message: "Current password and new password are required" });
+        }
+        if (newPassword.length < 8) {
+            return res.status(400).json({ success: false, message: "New password must be at least 8 characters" });
+        }
+
+        const user = await userModel.findById(req.userId);
+        if (!user) return res.status(404).json({ success: false, message: "User not found" });
+
+        const isMatch = await bcrypt.compare(currentPassword, user.password);
+        if (!isMatch) {
+            return res.status(401).json({ success: false, message: "Current password is incorrect" });
+        }
+
+        user.password = await bcrypt.hash(newPassword, 10);
+        await user.save();
+
+        return res.status(200).json({ success: true, message: "Password changed successfully" });
+    } catch (err) {
+        return res.status(500).json({ success: false, message: err.message });
     }
 }
 
