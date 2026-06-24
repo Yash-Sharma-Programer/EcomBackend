@@ -3,7 +3,7 @@ import jwt from "jsonwebtoken"
 import config from "../config/config.js"
 import bcrypt from "bcrypt"
 import crypto from "crypto"
-import { sendPasswordResetEmail } from "../services/email.service.js"
+import { canSendEmail, sendPasswordResetEmail } from "../services/email.service.js"
 
 function signToken(user) {
     return jwt.sign({ id: user._id, role: user.role }, config.JWT_SECRET, { expiresIn: "7d" })
@@ -189,6 +189,20 @@ export async function forgotPassword(req, res) {
         await user.save();
 
         const resetUrl = `${config.CLIENT_URL}/reset-password/${rawToken}`;
+
+        if (!canSendEmail()) {
+            // For local development, return the link so you can test without SMTP.
+            // In production, configure SMTP env vars instead of exposing reset links.
+            if (config.NODE_ENV !== "production") {
+                return res.status(200).json({
+                    success: true,
+                    message: "SMTP is not configured. Use this development reset link.",
+                    resetLink: resetUrl
+                });
+            }
+            return res.status(500).json({ success: false, message: "SMTP is not configured on the server" });
+        }
+
         await sendPasswordResetEmail(user, resetUrl);
 
         return res.status(200).json({ success: true, message: "Password reset link sent to your email" });

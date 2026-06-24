@@ -1,7 +1,7 @@
 import nodemailer from "nodemailer";
 import config from "../config/config.js";
 
-function canSendEmail() {
+export function canSendEmail() {
     return Boolean(config.SMTP_HOST && config.SMTP_USER && config.SMTP_PASS && config.SMTP_FROM);
 }
 
